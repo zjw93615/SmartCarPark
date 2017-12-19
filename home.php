@@ -37,6 +37,8 @@
   var bounds;
   var origin;
   var placeMarker = [];
+  var carParkMarker = [];
+  var directionsDisplay;
 
   function initMap() {
 
@@ -63,17 +65,10 @@
       console.log("failure")
     }
 
-    // var directionsDisplay = new google.maps.DirectionsRenderer({
-    //   map: map
-    // });
-    // var image = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/beachflag.png';
-    // var markers = locations.map(function(location, i) {
-    //   var marker = addMarker(map, location, image, -1, bounds);
-    //   marker.addListener('click', function() {
+    directionsDisplay = new google.maps.DirectionsRenderer({
+      map: map
+    });
 
-    //     navi(directionsDisplay, origin, marker.getPosition());
-    //   });
-    // });
     var service = new google.maps.places.PlacesService(map);
     document.getElementById('submit').addEventListener('click', function() {
       geocodeAddress(map, origin, service, bounds);
@@ -105,49 +100,74 @@
       radius: 5000,
       keyword: address
     };
-    bounds  = new google.maps.LatLngBounds();
-    bounds.extend(origin);
+    resetBounds(true);
     var labels = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     var labelIndex = 0;
 
     service.nearbySearch(request, function(results, status) {
       if (status == google.maps.places.PlacesServiceStatus.OK) {
-        cleanPlaceMarker();
+        cleanAllMarker();
         for (var i = 0; i < results.length; i++) {
           var pos = results[i].geometry.location;
-          var marker = addMarker(map, pos, '', -1, bounds);
+          var image = {
+            url: "https://maps.gstatic.com/mapfiles/ms2/micons/yellow.png",
+            // This marker is 20 pixels wide by 32 pixels high.
+            size: new google.maps.Size(32, 32),
+            // The origin for this image is (0, 0).
+            origin: new google.maps.Point(0, -5),
+          };
+          // var image = "https://maps.gstatic.com/mapfiles/ms2/micons/yellow.png";
+          var marker = addMarker(map, pos, image, -1, bounds);
           placeMarker.push(marker);
           //Display the result list
           $('.place-result').append(('<button id="'+i+'"" type="button" class="list-group-item">'+'<p3>'+labels[labelIndex % labels.length]+'. </p3>      '+results[i].name+'</button>'));
           marker.setLabel(labels[labelIndex++ % labels.length]);
-          marker.addListener('click', function() {
-            var lat = results[i].geometry.location.latitude;
-            var lng = results[i].geometry.location.longitude;
-            var requestData = {lat: lat, lng: lng};
-            $.post("test.php", requestData, function(data) {
-              console.log(data);
-            });
-          });
         }
+        var markers = placeMarker.map(function(marker, i) {
+          marker.addListener('click', function() {
+            getCarParks(marker.getPosition().lat(),marker.getPosition().lng());
+            map.setCenter(marker.getPosition());
+            map.setZoom(15);
+          });
+        });
         $('ul button').on('click', function(e) {
           var i =e.target.id;
           map.setCenter(placeMarker[i].getPosition());
           map.setZoom(15);
+          getCarParks(placeMarker[i].getPosition().lat(),placeMarker[i].getPosition().lng());
         });
       }
     });
   }
 
+  function cleanAllMarker() {
+    cleanPlaceMarker();
+    cleanCarParkMarker();
+  }
+
+  function cleanCarParkMarker() {
+    if (carParkMarker.length > 0) {
+      for (var i = 0; i < carParkMarker.length; i++) {
+        carParkMarker[i].setMap(null);
+      }
+      carParkMarker = [];
+    }
+    directionsDisplay.setMap(null);
+
+  }
+
   function cleanPlaceMarker() {
-    for (var i = 0; i < placeMarker.length; i++) {
+    for (var i = 0; placeMarker.length > 0 && i < placeMarker.length; i++) {
       placeMarker[i].setMap(null);
     }
     $('.place-result').empty();
     placeMarker = [];
+    directionsDisplay.setMap(null);
   }
 
   function navi(directionsDisplay, origin, destination) {
     // Set destination, origin and travel mode.
+    directionsDisplay.setMap(map);
     var request = {
       destination: destination,
       origin: origin,
@@ -164,17 +184,42 @@
     });
   }
 
-  // $(document).ready(function() {
-  //   $('#submit').click(function(event) {
-  //     var address = $('#address').val();
-  //     var lat = origin.lat;
-  //     var lng = origin.lng;
-  //     var requestData = {address: address, lat: lat, lng: lng};
-  //     $.post("test.php", requestData, function(data) {
-  //       console.log(data);
-  //     });
-  //   });
-  // });
+  function getCarParks(locationLat, locationLng) {
+    resetBounds(false);
+    var position = {
+      lat: locationLat,
+      lng: locationLng
+    };
+    bounds.extend(position);
+    cleanCarParkMarker();
+    var requestData = {lat: locationLat, lng: locationLng};
+    $.post("assets/php/getCarPark.php", requestData, function(data) {
+      var obj = $.parseJSON(data);
+      var results = obj.results;
+      for (var i = 0; i < results.length; i++) {
+        var name = results[i].data.name;
+        var lat = parseFloat(results[i].data.lat);
+        var lng = parseFloat(results[i].data.lng);
+        var price = results[i].data.price;
+        var pos = new google.maps.LatLng(lat,lng);
+        var image = 'https://maps.gstatic.com/mapfiles/ms2/micons/green.png';
+        var marker = addMarker(map, pos, image, -1, bounds);
+        carParkMarker.push(marker);
+      }
+      var markers = carParkMarker.map(function(marker, i) {
+        marker.addListener('click', function() {
+          navi(directionsDisplay, origin, marker.getPosition());
+        });
+      });
+    });
+  }
+
+  function resetBounds(includeOrigin) {
+    bounds = new google.maps.LatLngBounds();
+    if(includeOrigin) {
+      bounds.extend(origin);
+    }
+  }
 
 </script>
 <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js">

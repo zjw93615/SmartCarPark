@@ -1,14 +1,14 @@
 <?php
-  include("assets/php/connection.php");
+  include("connection.php");
   $key = 'AIzaSyBafCANRIdz41dwRNf_GnNVCN4Mbeg3uCw';
   $result = array();
   if(isset($_POST['lat'])&&isset($_POST['lng'])){
-    $q = "SELECT * FROM CarPark";
+    $q = "SELECT * FROM smartpark";
     $r = mysqli_query($dbc, $q);
     while($data = mysqli_fetch_assoc($r)) {
       if($data['vacant'] == 0) {
         $dis = distanceSimplify($_POST['lat'], $_POST['lng'], $data['lat'], $data['lng']);
-        if($dis <= 000) {
+        if($dis <= 500) {
           $value['dis'] = $dis;
           $value['data'] = $data;
           array_push($result, $value);
