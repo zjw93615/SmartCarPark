@@ -194,6 +194,7 @@
     cleanCarParkMarker();
     var requestData = {lat: locationLat, lng: locationLng};
     $.post("assets/php/getCarPark.php", requestData, function(data) {
+      console.log(data);
       var obj = $.parseJSON(data);
       var results = obj.results;
       for (var i = 0; i < results.length; i++) {

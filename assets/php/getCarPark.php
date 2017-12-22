@@ -3,14 +3,21 @@
   $key = 'AIzaSyBafCANRIdz41dwRNf_GnNVCN4Mbeg3uCw';
   $result = array();
   if(isset($_POST['lat'])&&isset($_POST['lng'])){
+    $num = 3000;
+    if(isset($_POST['num'])) {
+      $num = $_POST['num'];
+    }
     $q = "SELECT * FROM smartpark";
     $r = mysqli_query($dbc, $q);
     while($data = mysqli_fetch_assoc($r)) {
       if($data['vacant'] == 0) {
         $dis = distanceSimplify($_POST['lat'], $_POST['lng'], $data['lat'], $data['lng']);
-        if($dis <= 500) {
+        if(sizeof($result) < $num && $dis <= 500) {
           $value['dis'] = $dis;
-          $value['data'] = $data;
+          $d['id'] = $data['id'];
+          $d['lat'] = $data['lat'];
+          $d['lng'] = $data['lng'];
+          $value['data'] = $d;
           array_push($result, $value);
         }
       }
