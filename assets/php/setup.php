@@ -4,7 +4,7 @@
     if (isset($_SERVER['REQUEST_URI'])) {
 
       $PHP_SELF=$_SERVER['PHP_SELF'];
-      $path['url']='http://'.$_SERVER['HTTP_HOST'].substr($PHP_SELF,0,strrpos($PHP_SELF,'/')+1);
+      $path['url']='https://'.$_SERVER['HTTP_HOST'].substr($PHP_SELF,0,strrpos($PHP_SELF,'/')+1);
 
       $request_path = explode('?', $_SERVER['REQUEST_URI']);
 
