@@ -14,8 +14,13 @@
             <?php
               if(!isset($path['call_parts'][0]) || $path['call_parts'][0] == '') {
                 echo '<li class="active"><a href="'.$path['url'].'">Home</a></li>';
+                echo '<li><a href="'.$path['url'].'analysis/">Analysis</a></li>';
               }else if($path['call_parts'][0] == 'home') {
                 echo '<li class="active"><a href="'.$path['url'].'">Home</a></li>';
+                echo '<li><a href="'.$path['url'].'analysis/">Analysis</a></li>';
+              }else if($path['call_parts'][0] == 'analysis') {
+                echo '<li><a href="'.$path['url'].'">Home</a></li>';
+                echo '<li class="active"><a href="'.$path['url'].'analysis/">Analysis</a></li>';
               }
             ?>
           </ul>

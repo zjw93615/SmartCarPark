@@ -11,6 +11,8 @@
       include("home.php");
     }else if($path['call_parts'][0] == 'home') {
       include("home.php");
+    }else if($path['call_parts'][0] == 'analysis') {
+      include("analysis.php");
     }
   }
 ?>
