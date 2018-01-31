@@ -12,7 +12,7 @@ include('assets/php/data.php');
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href=<?php echo $path['url'].'assets/images/Logo.ico'; ?>>
+    <link rel="icon" href=<?php echo $path['url'].'assets/images/parking-sign.png'; ?>>
 
     <title>Smart Parking</title>
 
