@@ -14,7 +14,7 @@ include('assets/php/data.php');
     <meta name="author" content="">
     <link rel="icon" href=<?php echo $path['url'].'assets/images/Logo.ico'; ?>>
 
-    <title>Jiawei Web</title>
+    <title>Smart Parking</title>
 
     <!-- Bootstrap core CSS -->
     <!-- Latest compiled and minified CSS -->
